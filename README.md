@@ -1,8 +1,21 @@
 # LiveOps Gaming Platform | Databricks + Claude Code
 
-> **TL;DR** -- A complete LiveOps monitoring demo for gaming companies, built entirely with **Claude Code** on **Databricks**. The demo showcases how Databricks' unified platform (Unity Catalog + Foundation Model API + Lakeview + Apps) can automate incident detection, root cause analysis, and reporting -- reducing a **2-hour war room** to a **5-minute automated pipeline**.
+---
 
-> **"After a version release, revenue drops -- the platform auto-locates the root cause in 5 minutes, delivers actionable recommendations, and generates the incident report."**
+## TL;DR
+
+A complete **LiveOps monitoring demo** for gaming companies, built entirely with **Claude Code** on **Databricks**.
+
+The demo showcases how Databricks' unified platform can **automate incident detection, root cause analysis, and reporting** -- reducing a **2-hour war room** to a **5-minute automated pipeline**.
+
+| | |
+|---|---|
+| **What** | End-to-end incident response automation for mobile game LiveOps |
+| **Built With** | `Claude Code` -- AI pair programming on Databricks |
+| **Platform** | `Unity Catalog` + `Foundation Model API` + `Lakeview` + `Databricks Apps` |
+| **Key Result** | **2-hour** manual war room --> **5-minute** fully automated pipeline |
+
+> *"After a version release, revenue drops -- the platform auto-locates the root cause in 5 minutes, delivers actionable recommendations, and generates the incident report."*
 
 ---
 
