@@ -25,6 +25,8 @@ WAREHOUSE_ID = os.environ.get("DATABRICKS_WAREHOUSE_ID", "f90a96426a475f5b")
 FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
 CATALOG = "neo_claude_code"
 SCHEMA = "gaming"
+DASHBOARD_ID = "01f118519b9d102386a8df5a22488107"
+WORKSPACE_HOST = w.config.host.rstrip("/")
 
 # Store ground truth for comparison
 incident_log = []
@@ -59,7 +61,9 @@ def send_feishu(card):
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return """
+    dashboard_embed_url = f"{WORKSPACE_HOST}/embed/dashboardsv3/{DASHBOARD_ID}/published"
+    dashboard_full_url = f"{WORKSPACE_HOST}/dashboardsv3/{DASHBOARD_ID}"
+    html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +76,7 @@ def index():
   .header { background: linear-gradient(135deg, #1a1a3e 0%, #0d0d2b 100%); padding: 20px 30px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 24px; color: #fff; }
   .header .badge { background: #00b894; padding: 4px 12px; border-radius: 20px; font-size: 12px; color: white; }
-  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
   .card { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; }
   .card h3 { margin-bottom: 15px; color: #a0a0ff; }
@@ -144,11 +148,46 @@ def index():
     <h3>📊 Ground Truth vs AI Insights Comparison</h3>
     <div id="comparisonArea"></div>
   </div>
+
+  <!-- Dashboard Embed -->
+  <div class="card" style="margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3>📊 LiveOps Dashboard</h3>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <span id="dashboardStatus" style="font-size: 12px; color: #888;"></span>
+        <button class="btn btn-primary" onclick="refreshDashboard()" style="padding: 8px 16px; font-size: 12px;">
+          🔄 Refresh Dashboard
+        </button>
+        <a href="__DASHBOARD_FULL_URL__" target="_blank" class="btn btn-success" style="padding: 8px 16px; font-size: 12px; text-decoration: none;">
+          ↗ Open Full Screen
+        </a>
+      </div>
+    </div>
+    <iframe id="dashboardFrame"
+            src="__DASHBOARD_EMBED_URL__"
+            style="width: 100%; height: 700px; border: 1px solid #333; border-radius: 8px; background: #fff;"
+            loading="lazy">
+    </iframe>
+  </div>
 </div>
 
 <script>
 const groundTruthLog = document.getElementById('groundTruthLog');
 const insightsLog = document.getElementById('insightsLog');
+const dashboardFrame = document.getElementById('dashboardFrame');
+const dashboardStatus = document.getElementById('dashboardStatus');
+
+function refreshDashboard() {
+  dashboardStatus.textContent = 'Refreshing...';
+  dashboardStatus.style.color = '#f39c12';
+  const src = dashboardFrame.src;
+  dashboardFrame.src = '';
+  setTimeout(() => {
+    dashboardFrame.src = src;
+    dashboardStatus.textContent = 'Refreshed at ' + new Date().toLocaleTimeString();
+    dashboardStatus.style.color = '#00b894';
+  }, 500);
+}
 
 function addLog(target, msg, cls='info') {
   const div = document.createElement('div');
@@ -183,6 +222,13 @@ async function releaseVersion() {
       addLog(groundTruthLog, `Rows inserted: ${data.rows_inserted}`, 'success');
       addLog(groundTruthLog, '---', 'info');
       addLog(groundTruthLog, 'Ground truth recorded. Ready for AI analysis.', 'success');
+      addLog(groundTruthLog, 'Refreshing dashboard...', 'info');
+
+      // Auto-refresh dashboard after data is written
+      setTimeout(() => {
+        refreshDashboard();
+        addLog(groundTruthLog, 'Dashboard refreshed.', 'success');
+      }, 2000);
 
       document.getElementById('analysisBtn').disabled = false;
     } else {
@@ -280,6 +326,7 @@ async function compareResults() {
 </body>
 </html>
 """
+    return html.replace("__DASHBOARD_EMBED_URL__", dashboard_embed_url).replace("__DASHBOARD_FULL_URL__", dashboard_full_url)
 
 
 @app.post("/api/release-version")
