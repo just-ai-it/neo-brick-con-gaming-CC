@@ -72,13 +72,15 @@ def is_in_incident_window(ts):
     return INCIDENT_DATE <= ts <= INCIDENT_END
 
 def base_fail_rate(platform, version, region, provider, ts):
-    """Normal fail rate ~2%, incident bumps iOS+1.2.7+SG+Stripe to ~18%"""
+    """Normal fail rate ~2%, incident bumps iOS+1.2.7 broadly so revenue visibly dips"""
     if is_in_incident_window(ts) and platform == "iOS" and version == "1.2.7" and region == "SG" and provider == "Stripe":
-        return 0.18
+        return 0.55
     if is_in_incident_window(ts) and platform == "iOS" and version == "1.2.7" and region == "SG":
-        return 0.06
+        return 0.35
     if is_in_incident_window(ts) and platform == "iOS" and version == "1.2.7":
-        return 0.04
+        return 0.20
+    if is_in_incident_window(ts) and platform == "iOS":
+        return 0.06
     return 0.02
 
 def pick_error_code(platform, version, region, provider, ts):
